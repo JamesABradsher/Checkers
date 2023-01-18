@@ -1,18 +1,36 @@
 #include "Board.h"
 
-bool Board::IsValidMove(Piece& piece, int x, int y, bool firstPlayer, bool& OutIsJump)
+bool Board::IsValidMove(Piece& piece, int x, int y, bool& OutIsJump)
 {
-	// Checks if the piece is moving in the right direction
-	if ((firstPlayer && y <= piece.getY() || !firstPlayer && y >= piece.getY()) && !piece.getIsKing())
+	// Checks if the target location is on the board
+	if (x < 0 || x >= s_SideLength || y < 0 || y >= s_SideLength)
 		return false;
 
+	// Checks if the piece is moving in the right direction
+	if (((piece.isFirstPlayer() && y <= piece.getY()) || (!piece.isFirstPlayer() && y >= piece.getY())) && !piece.getIsKing())
+		return false;
+
+	int xChange = x - piece.getX();
+	int yChange = y - piece.getY();
 
 	// Checks if the piece is moving the right distance
-	if (std::abs(x - piece.getX()) != c_MoveDist && std::abs(y - piece.getY()) != c_MoveDist)
+	if (std::abs(xChange) != c_MoveDist && std::abs(yChange) != c_MoveDist)
 	{
 		// If the player is trying to move the piece futher away than one space, check if they are trying to jump
-		if (std::abs(x - piece.getX()) == c_JumpDist && std::abs(y - piece.getY()) == c_JumpDist)
+		if (std::abs(xChange) == c_JumpDist && std::abs(yChange) == c_JumpDist)
 		{
+			// Calculating the position of the oppoonent we are trying to jump
+			int opponentX = (piece.getX() + x) / c_JumpDist;
+			int opponentY = (piece.getY() + y)  / c_JumpDist;
+			std::pair<int, int> opponentLocation = std::make_pair(opponentX, opponentY);
+
+			// If there is no piece that can be jumped or if it is on the same team as the current palyer 
+			if (!m_HasPiece[opponentX][opponentY] || m_GamePieces[opponentLocation].isFirstPlayer() == piece.isFirstPlayer());
+			{
+				return false;
+			}
+
+			// Is a valid jump
 			if (!m_HasPiece[x][y])
 			{
 				OutIsJump = true;
@@ -28,8 +46,28 @@ bool Board::IsValidMove(Piece& piece, int x, int y, bool firstPlayer, bool& OutI
 	}
 }
 
-bool Board::MovePiece(Piece& piece, int x, int y, bool firstPlayer)
+void Board::MovePiece(Piece& piece, int x, int y)
 {
-	bool 
-	if (!)
+	// Determines if the Peice can move
+	bool isJump = false;
+	if (!IsValidMove(piece, x, y, isJump))
+		return;
+
+	// Moves the Piece
+	piece.setX(x);
+	piece.setY(y);
+
+	// If the piece is not a king piece and needs to be elevated
+	if (!piece.getIsKing() && (y == s_SideLength - 1 && piece.isFirstPlayer()) || (y == 0 && !piece.isFirstPlayer()))
+		piece.MakeKing();
+
+	if (isJump)
+	{
+		// Calculates the position of the oppoonent we are trying to jump
+		int opponentX = (piece.getX() + x) / c_JumpDist;
+		int opponentY = (piece.getY() + y) / c_JumpDist;
+		std::pair<int, int> opponentLocation = std::make_pair(opponentX, opponentY);
+
+		RemovePiece(m_GamePieces[opponentLocation]);
+	}
 }

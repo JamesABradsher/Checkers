@@ -1,5 +1,5 @@
 project "CheckersModel"
-    kind "ConsoleApp"
+    kind "StaticLib"
     language "C++"
     cppdialect "C++20"
     staticruntime "on"

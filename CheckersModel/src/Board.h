@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <cmath>
+#include <map>
 #include "Piece.h"
 
 #ifndef BOARD_H
@@ -13,7 +13,9 @@ class Board
 public:
 	Board()
 	{
-		
+		// Tests for moving pieces
+
+
 	}
 
 
@@ -21,10 +23,10 @@ public:
 public:
 
 	/* Returns true if the given coordinates are a valid place for the given piece to move */
-	bool IsValidMove(Piece& piece, int x, int y, bool firstPlayer, bool& OutIsJump);
+	bool IsValidMove(Piece& piece, int x, int y, bool& OutIsJump);
 
 	/* Moves the given piece to the given coordinates if it is valid */
-	void MovePiece(Piece& piece, int x, int y, bool firstPlayer);
+	void MovePiece(Piece& piece, int x, int y);
 
 	// Private member functions
 private:
@@ -41,9 +43,11 @@ public:
 	static const int s_MaxPieces = 24;
 	const int c_MoveDist = 1;
 	const int c_JumpDist = 2;
+
 	// Member fields
 private:
-	Piece m_GamePieces[s_MaxPieces];
+	std::map<std::pair<int, int>, Piece> m_GamePieces;
+	Piece m_PieceContainer[s_MaxPieces]; // Allocates pieces to the board stack frame. Not used other than for memory management
 	bool m_HasPiece[s_SideLength][s_SideLength];
 };
 
